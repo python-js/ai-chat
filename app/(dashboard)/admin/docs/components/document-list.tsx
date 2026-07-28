@@ -57,6 +57,11 @@ export default function DocumentList() {
                 {cfg.label}
               </Badge>
             </CardContent>
+            {doc.status === "processing" && (
+              <div className="h-0.5 overflow-hidden rounded-b-lg bg-gray-100">
+                <div className="h-full w-1/4 animate-[indeterminate_1.5s_ease-in-out_infinite] bg-blue-400" />
+              </div>
+            )}
           </Card>
         );
       })}

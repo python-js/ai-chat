@@ -129,3 +129,13 @@
     @apply font-sans;
   }
 }
+
+/* 不确定态进度条动画（文档处理中） */
+@keyframes indeterminate {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(400%);
+  }
+}

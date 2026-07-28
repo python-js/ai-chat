@@ -14,5 +14,9 @@ export interface Doc {
 export const DOCUMENTS_KEY = "/api/documents";
 
 export function useDocuments() {
-  return useSWR<Doc[]>(DOCUMENTS_KEY, fetcher);
+  return useSWR<Doc[]>(DOCUMENTS_KEY, fetcher, {
+    // 存在未终态文档时 3s 轮询，全部就绪后自动停止
+    refreshInterval: (data) =>
+      data?.some((d) => d.status === "pending" || d.status === "processing") ? 3000 : 0,
+  });
 }
