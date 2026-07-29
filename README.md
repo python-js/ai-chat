@@ -148,6 +148,50 @@ pnpm dev
 
 > `prisma generate` 由 `postinstall` 自动触发，无需手动执行。
 
+## 部署（Vercel）
+
+### 前置准备
+
+1. **数据库**：创建 [Neon](https://neon.tech) PostgreSQL 项目（原生支持 pgvector），获取连接串
+2. **代码托管**：将项目推送到 GitHub 仓库（确认 `.env` 已在 `.gitignore` 中）
+
+### 部署步骤
+
+1. 登录 [Vercel](https://vercel.com) → **Add New → Project** → 导入 GitHub 仓库
+2. 框架预设自动识别为 **Next.js**，无需修改
+3. 展开 **Environment Variables**，添加以下变量（Environment 选 Production and Preview）：
+
+   | Key | Value |
+   |-----|-------|
+   | `DATABASE_URL` | Neon 连接串（含 `?sslmode=require`） |
+   | `DASHSCOPE_API_KEY` | 百炼 API Key |
+   | `DASHSCOPE_BASE_URL` | `https://dashscope.aliyuncs.com/compatible-mode/v1` |
+   | `LLM_MODEL` | 使用的 LLM 模型名 |
+   | `EMBEDDING_MODEL` | 使用的 Embedding 模型名 |
+   | `AUTH_SECRET` | 随机字符串（`openssl rand -base64 32` 生成） |
+
+4. 点击 **Deploy**
+5. 本地对生产数据库执行初始化（仅需一次）：
+
+   ```bash
+   # 将 .env 中 DATABASE_URL 临时替换为 Neon 连接串后执行
+   npx prisma migrate deploy
+   npx tsx prisma/seed.ts
+   ```
+
+6. 访问 Vercel 分配的域名（`https://<项目名>.vercel.app`）验证
+
+### 持续部署
+
+- 推送到 `main` 分支 → 自动触发生产部署
+- 推送到其他分支 / 开 PR → 自动创建 Preview 部署（独立 URL）
+
+### 注意事项
+
+- Neon 免费实例 5 分钟无活动会休眠，首次请求多 1~2s 冷启动
+- Vercel Hobby 计划 Serverless 超时上限 10s，大文档 embedding 可能中断；Pro 计划可设 `maxDuration` 至 300s
+- 百炼 API 从海外调用有额外延迟，可在 Vercel 设置中将 Function Region 改为 `hkg1`（香港）
+
 ## 架构设计
 
 ### 分层结构
