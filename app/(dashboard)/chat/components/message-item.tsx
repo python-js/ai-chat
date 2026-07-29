@@ -7,7 +7,7 @@ import AiAvatar from "./ai-avatar";
 // 从消息 parts 中提取纯文本
 function extractText(message: UIMessage): string {
   return (
-    message.parts?.filter((p) => p.type === "text").map((p) => p.text).join("") || ""
+    message.parts?.filter((p): p is { type: "text"; text: string } => p.type === "text").map((p) => p.text).join("") || ""
   );
 }
 
